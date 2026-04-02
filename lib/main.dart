@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const AnestCalcApp());
@@ -145,7 +146,7 @@ class AnestCalcApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: kAccent),
-        fontFamily: 'sans-serif',
+        fontFamily: GoogleFonts.dmSans().fontFamily,
         scaffoldBackgroundColor: kBg,
       ),
       home: const AnestCalcPage(),
@@ -337,11 +338,12 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
 
   Widget _buildHeader() {
     return Column(
-      children: const [
+      children: [
         Text('AnestCalc',
           style: TextStyle(
             fontSize: 32, color: kAccent, fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
+            fontFamily: GoogleFonts.dmSerifDisplay().fontFamily,
           ),
           textAlign: TextAlign.center,
         ),
@@ -515,9 +517,9 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 32, fontWeight: FontWeight.w500,
-                    fontFamily: 'monospace', color: kText,
+                    fontFamily: GoogleFonts.dmMono().fontFamily, color: kText,
                   ),
                   decoration: InputDecoration(
                     hintText: '70',
@@ -599,10 +601,14 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
                 padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
                 child: Column(
                   children: [
-                    Text('${r.tubetesArredondado}',
-                      style: const TextStyle(
-                        fontSize: 80, color: Colors.white,
-                        fontWeight: FontWeight.w700, height: 1,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('${r.tubetesArredondado}',
+                        style: TextStyle(
+                          fontSize: 80, color: Colors.white,
+                          fontWeight: FontWeight.w700, height: 1,
+                          fontFamily: GoogleFonts.dmSerifDisplay().fontFamily,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -613,6 +619,7 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
                     Text('${r.anest.nome} · ${r.anest.conc}',
                       style: const TextStyle(fontSize: 15, color: Colors.white, fontWeight: FontWeight.w500),
                       textAlign: TextAlign.center,
+                      overflow: TextOverflow.visible,
                     ),
                   ],
                 ),
@@ -662,12 +669,21 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(key, style: const TextStyle(fontSize: 13, color: kTextMuted)),
-          Text(val, style: const TextStyle(
-            fontSize: 14, fontWeight: FontWeight.w600,
-            fontFamily: 'monospace', color: kText,
-          )),
+          Flexible(
+            child: Text(key, style: const TextStyle(fontSize: 13, color: kTextMuted)),
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(val,
+              style: TextStyle(
+                fontSize: 14, fontWeight: FontWeight.w600,
+                fontFamily: GoogleFonts.dmMono().fontFamily, color: kText,
+              ),
+              textAlign: TextAlign.end,
+            ),
+          ),
         ],
       ),
     );
@@ -694,7 +710,7 @@ class _Card extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 20, color: kAccent, fontWeight: FontWeight.w700)),
+          Text(title, style: TextStyle(fontSize: 20, color: kAccent, fontWeight: FontWeight.w700, fontFamily: GoogleFonts.dmSerifDisplay().fontFamily)),
           const SizedBox(height: 4),
           Text(subtitle, style: const TextStyle(fontSize: 13, color: kTextMuted)),
           const SizedBox(height: 20),
@@ -773,13 +789,16 @@ class _AnestButton extends StatelessWidget {
         child: Opacity(
           opacity: allowed ? 1.0 : 0.35,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
-                      Text(nome, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: kText)),
+                      Flexible(
+                        child: Text(nome, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: kText)),
+                      ),
                       if (!allowed) ...[
                         const SizedBox(width: 8),
                         Container(
@@ -800,16 +819,19 @@ class _AnestButton extends StatelessWidget {
                 ),
               ),
               if (badge != null)
-                Container(
-                  margin: const EdgeInsets.only(left: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: kSurface2, borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: kBorder),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Container(
+                    margin: const EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: kSurface2, borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: kBorder),
+                    ),
+                    child: Text(badge!, style: TextStyle(
+                      fontSize: 11, color: kTextMuted, fontFamily: GoogleFonts.dmMono().fontFamily,
+                    )),
                   ),
-                  child: Text(badge!, style: const TextStyle(
-                    fontSize: 11, color: kTextMuted, fontFamily: 'monospace',
-                  )),
                 ),
             ],
           ),
@@ -892,7 +914,7 @@ class _StepDot extends StatelessWidget {
       child: Text(
         '$number',
         style: TextStyle(
-          fontSize: 11, fontWeight: FontWeight.w600, fontFamily: 'monospace',
+          fontSize: 11, fontWeight: FontWeight.w600, fontFamily: GoogleFonts.dmMono().fontFamily,
           color: isActive ? Colors.white : isDone ? kOk : kTextMuted,
         ),
       ),
