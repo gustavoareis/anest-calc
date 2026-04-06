@@ -25,6 +25,17 @@ const Color kOk = Color(0xFF1E6B45);
 const Color kOkLight = Color(0xFFE6F4ED);
 const Color kOkBorder = Color(0xFF9FD4BB);
 
+// ─── CORES DOS PERFIS ─────────────────────────────────────────────
+const Map<String, ({Color iconColor, Color bgColor})> kProfileColors = {
+  'saudavel': (iconColor: Color(0xFF1E6B45), bgColor: Color(0xFFE6F4ED)),
+  'gestante': (iconColor: Color(0xFFD84E8D), bgColor: Color(0xFFFCE4F0)),
+  'cardiopata': (iconColor: Color(0xFFD32F2F), bgColor: Color(0xFFFFEBEE)),
+  'hipertenso': (iconColor: Color(0xFFE68C00), bgColor: Color(0xFFFFF3E0)),
+  'diabetico': (iconColor: Color(0xFF1976D2), bgColor: Color(0xFFE3F2FD)),
+  'crianca': (iconColor: Color(0xFFC17817), bgColor: Color(0xFFFFF3E0)),
+  'idoso': (iconColor: Color(0xFF7B1FA2), bgColor: Color(0xFFF3E5F5)),
+};
+
 // ─── MODELOS ──────────────────────────────────────────────────────
 class Vasoconstritor {
   final String id;
@@ -52,7 +63,7 @@ class Anestesico {
 class Perfil {
   final String id;
   final String label;
-  final String icon;
+  final IconData icon;
   final List<String>? anestesicosPermitidos;
   final Map<String, dynamic> limites;
   final String? obs;
@@ -111,25 +122,25 @@ const List<Anestesico> anestesicos = [
 ];
 
 const List<Perfil> perfis = [
-  Perfil(id: 'saudavel', label: 'Saudável', icon: '🧑‍⚕️',
+  Perfil(id: 'saudavel', label: 'Saudável', icon: Icons.person,
     anestesicosPermitidos: null, limites: {}, obs: null),
-  Perfil(id: 'gestante', label: 'Gestante', icon: '🤰',
+  Perfil(id: 'gestante', label: 'Gestante', icon: Icons.pregnant_woman,
     anestesicosPermitidos: ['lido2'], limites: {'default': 2},
     obs: 'Prilocaína contraindicada (metemoglobinemia). Felipressina contraindicada (ação ocitócica). Apenas Lidocaína 2% com epinefrina, máx. 2 tubetes.'),
-  Perfil(id: 'cardiopata', label: 'Cardiopata', icon: '❤️',
+  Perfil(id: 'cardiopata', label: 'Cardiopata', icon: Icons.favorite,
     anestesicosPermitidos: ['lido2', 'artic4', 'prilo3', 'bupi05'],
     limites: {'epi100': 2, 'epi200': 4, 'default': 3},
     obs: 'Com Epi 1:100.000: máx. 2 tubetes. Com Epi 1:200.000: máx. 4 tubetes. Felipressina preferível por não causar alteração cardiovascular.'),
-  Perfil(id: 'hipertenso', label: 'Hipertenso', icon: '🩺',
+  Perfil(id: 'hipertenso', label: 'Hipertenso', icon: Icons.monitor_heart,
     anestesicosPermitidos: null, limites: {'epi100': 2, 'feli': 3, 'default': 4},
     obs: 'PA acima de 140x90 mmHg: contraindicar procedimento eletivo. Epi 1:100.000 máx. 2 tubetes; Felipressina máx. 3 tubetes.'),
-  Perfil(id: 'diabetico', label: 'Diabético', icon: '🍬',
+  Perfil(id: 'diabetico', label: 'Diabético', icon: Icons.water_drop,
     anestesicosPermitidos: null, limites: {'epi100': 3, 'epi200': 4, 'default': 4},
     obs: 'Felipressina segura (não altera glicemia). Com epinefrina: máx. 3 tubetes por sessão.'),
-  Perfil(id: 'crianca', label: 'Criança', icon: '👶',
+  Perfil(id: 'crianca', label: 'Criança', icon: Icons.child_care,
     anestesicosPermitidos: ['lido2'], limites: {'byWeight': true},
     obs: 'Dose calculada por peso: 1 tubete a cada 9,09 kg (Lidocaína 2% + Epi 1:200.000 recomendada pela AAPD). Prilocaína evitar em crianças anêmicas.'),
-  Perfil(id: 'idoso', label: 'Idoso', icon: '👴',
+  Perfil(id: 'idoso', label: 'Idoso', icon: Icons.elderly,
     anestesicosPermitidos: null, limites: {'epi100': 3, 'epi200': 4, 'default': 4},
     obs: 'Idosos mais sensíveis a vasoconstritores. Preferir Lidocaína 2% + Epi 1:200.000. Não ultrapassar 0,04 mg de adrenalina por consulta.'),
 ];
@@ -180,7 +191,7 @@ class ResultData {
 
 class AlertData {
   final String type; // 'warn', 'danger', 'ok'
-  final String icon;
+  final IconData icon;
   final String msg;
   AlertData({required this.type, required this.icon, required this.msg});
 }
@@ -298,16 +309,16 @@ class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateM
     final alerts = <AlertData>[];
     if (limitePerfil != null && limitePerfil <= tubetesPorPeso) {
       alerts.add(AlertData(
-        type: 'warn', icon: '⚠️',
+        type: 'warn', icon: Icons.warning_amber_rounded,
         msg: 'O limite do perfil ${perfil.label} é mais restritivo que o cálculo por peso. O resultado foi limitado a $tubetesArredondado tubetes.',
       ));
     }
     if (perfil.obs != null) {
-      alerts.add(AlertData(type: 'ok', icon: 'ℹ️', msg: perfil.obs!));
+      alerts.add(AlertData(type: 'ok', icon: Icons.info_outline, msg: perfil.obs!));
     }
     if (tubetesArredondado == 0) {
       alerts.add(AlertData(
-        type: 'danger', icon: '🔴',
+        type: 'danger', icon: Icons.error_outline,
         msg: 'O peso informado resulta em menos de 1 tubete seguro. Reavalie a indicação ou consulte um especialista.',
       ));
     }
@@ -452,12 +463,12 @@ class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateM
   // ── STEP 1: PERFIL ──────────────────────────────────────────────
   Widget _buildStep1() {
     final options = [
-      ('saudavel', '🧑‍⚕️', 'Saudável', 'Sem condições sistêmicas relevantes'),
-      ('gestante', '🤰', 'Gestante', 'Grávida ou amamentando'),
-      ('cardiopata', '❤️', 'Cardiopata', 'Doença cardiovascular ASA III/IV'),
-      ('hipertenso', '🩺', 'Hipertenso', 'Pressão arterial elevada controlada'),
-      ('diabetico', '🍬', 'Diabético', 'Diabetes mellitus controlado'),
-      ('crianca', '👶', 'Criança', 'Paciente pediátrico'),
+      ('saudavel', Icons.person, 'Saudável', 'Sem condições sistêmicas relevantes'),
+      ('gestante', Icons.pregnant_woman, 'Condição materna', 'Gestante ou lactante'),
+      ('cardiopata', Icons.favorite, 'Cardiopata', 'Doença cardiovascular (Classificação ASA)'),
+      ('hipertenso', Icons.monitor_heart, 'Hipertenso', 'Pressão arterial elevada'),
+      ('diabetico', Icons.water_drop, 'Diabético', 'Diabetes Tipo 1 ou 2'),
+      ('crianca', Icons.child_care, 'Criança', 'Paciente pediátrico'),
     ];
 
     return _Card(
@@ -477,8 +488,11 @@ class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateM
                 childAspectRatio: cellWidth / 130,
                 children: options.map((o) {
                   final p = perfis.firstWhere((p) => p.id == o.$1);
+                  final colors = kProfileColors[o.$1] ?? (iconColor: kAccent, bgColor: kAccentLight);
                   return _OptionButton(
                     icon: o.$2, label: o.$3, desc: o.$4,
+                    iconColor: colors.iconColor,
+                    iconBg: colors.bgColor,
                     selected: _perfil?.id == o.$1,
                     onTap: () => _selectPerfil(p),
                   );
@@ -488,8 +502,10 @@ class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateM
           ),
           const SizedBox(height: 10),
           _OptionButton(
-            icon: '👴', label: 'Idoso',
+            icon: Icons.elderly, label: 'Idoso',
             desc: 'Maior sensibilidade a vasoconstritores',
+            iconColor: kProfileColors['idoso']!.iconColor,
+            iconBg: kProfileColors['idoso']!.bgColor,
             selected: _perfil?.id == 'idoso',
             fullWidth: true,
             onTap: () => _selectPerfil(perfis.firstWhere((p) => p.id == 'idoso')),
@@ -806,14 +822,17 @@ class _Card extends StatelessWidget {
 }
 
 class _OptionButton extends StatelessWidget {
-  final String icon;
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBg;
   final String label;
   final String desc;
   final bool selected;
   final bool fullWidth;
   final VoidCallback onTap;
   const _OptionButton({
-    required this.icon, required this.label, required this.desc,
+    required this.icon, required this.iconColor, required this.iconBg,
+    required this.label, required this.desc,
     required this.selected, required this.onTap, this.fullWidth = false,
   });
 
@@ -834,8 +853,15 @@ class _OptionButton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 22)),
-            const SizedBox(height: 6),
+            Container(
+              width: 40, height: 40,
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 22, color: iconColor),
+            ),
+            const SizedBox(height: 8),
             Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: kText)),
             const SizedBox(height: 2),
             Text(desc, style: const TextStyle(fontSize: 11, color: kTextMuted, height: 1.3)),
@@ -1079,7 +1105,7 @@ class _AlertWidgetState extends State<_AlertWidget> with SingleTickerProviderSta
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.alert.icon, style: const TextStyle(fontSize: 16)),
+              Icon(widget.alert.icon, size: 16, color: fg),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(widget.alert.msg, style: TextStyle(fontSize: 13, color: fg, height: 1.5)),
