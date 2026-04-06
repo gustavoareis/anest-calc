@@ -666,7 +666,14 @@ class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateM
           child: Wrap(
             spacing: 16, runSpacing: 6,
             children: [
-              _summaryChip('${r.perfil.icon} ${r.perfil.label}'),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(r.perfil.icon, size: 14, color: kTextMuted),
+                  const SizedBox(width: 4),
+                  _summaryChip(r.perfil.label),
+                ],
+              ),
               _summaryChip('💊 ${r.anest.nome}'),
               _summaryChip('💉 ${r.vaso.label}'),
               _summaryChip('⚖️ ${r.peso.toStringAsFixed(0)} kg'),
