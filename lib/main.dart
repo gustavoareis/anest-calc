@@ -193,7 +193,7 @@ class AnestCalcPage extends StatefulWidget {
   State<AnestCalcPage> createState() => _AnestCalcPageState();
 }
 
-class _AnestCalcPageState extends State<AnestCalcPage> {
+class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateMixin {
   int _step = 1;
   Perfil? _perfil;
   Anestesico? _anestesico;
@@ -201,15 +201,50 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
   double? _peso;
   ResultData? _result;
   final TextEditingController _pesoCtrl = TextEditingController();
+  late final PageController _pageController;
+  late final AnimationController _fadeCtrl;
+  late final AnimationController _entranceCtrl;
+  late final Animation<double> _titleAnim;
+  late final Animation<double> _subtitleAnim;
+  late final Animation<double> _stepAnim;
+  late final Animation<double> _contentAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: 0);
+    _fadeCtrl = AnimationController(
+      vsync: this,
+      value: 1.0,
+      duration: const Duration(milliseconds: 220),
+    );
+    _entranceCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _titleAnim    = CurvedAnimation(parent: _entranceCtrl, curve: const Interval(0.00, 0.55, curve: Curves.easeOut));
+    _subtitleAnim = CurvedAnimation(parent: _entranceCtrl, curve: const Interval(0.12, 0.65, curve: Curves.easeOut));
+    _stepAnim     = CurvedAnimation(parent: _entranceCtrl, curve: const Interval(0.28, 0.78, curve: Curves.easeOut));
+    _contentAnim  = CurvedAnimation(parent: _entranceCtrl, curve: const Interval(0.42, 1.00, curve: Curves.easeOut));
+    _entranceCtrl.forward();
+  }
 
   @override
   void dispose() {
     _pesoCtrl.dispose();
+    _pageController.dispose();
+    _fadeCtrl.dispose();
+    _entranceCtrl.dispose();
     super.dispose();
   }
 
   void _goStep(int n) {
     setState(() => _step = n);
+    _pageController.animateToPage(
+      n - 1,
+      duration: const Duration(milliseconds: 380),
+      curve: Curves.easeInOutCubic,
+    );
   }
 
   void _selectPerfil(Perfil p) {
@@ -295,9 +330,14 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
       );
       _step = 5;
     });
+    _pageController.animateToPage(4,
+      duration: const Duration(milliseconds: 380),
+      curve: Curves.easeInOutCubic,
+    );
   }
 
-  void _reiniciar() {
+  Future<void> _reiniciar() async {
+    await _fadeCtrl.reverse();
     setState(() {
       _perfil = null;
       _anestesico = null;
@@ -307,6 +347,8 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
       _pesoCtrl.clear();
       _step = 1;
     });
+    _pageController.jumpToPage(0);
+    await _fadeCtrl.forward();
   }
 
   @override
@@ -314,21 +356,53 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
     return Scaffold(
       backgroundColor: kBg,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 60),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 520),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 32),
-                  _buildStepIndicator(),
-                  const SizedBox(height: 28),
-                  _buildCurrentStep(),
-                ],
-              ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                  child: Column(
+                    children: [
+                      _entrance(_buildTitle(), _titleAnim),
+                      const SizedBox(height: 4),
+                      _entrance(_buildSubtitle(), _subtitleAnim),
+                      const SizedBox(height: 32),
+                      _entrance(_buildStepIndicator(), _stepAnim),
+                      const SizedBox(height: 28),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: _entrance(
+                    FadeTransition(
+                      opacity: _fadeCtrl,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: 5,
+                        itemBuilder: (context, index) {
+                          final content = switch (index) {
+                            0 => _buildStep1(),
+                            1 => _buildStep2(),
+                            2 => _buildStep3(),
+                            3 => _buildStep4(),
+                            4 => _buildStep5(),
+                            _ => const SizedBox(),
+                          };
+                          return SingleChildScrollView(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 60),
+                            child: content,
+                          );
+                        },
+                      ),
+                    ),
+                    _contentAnim,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -336,23 +410,32 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
     );
   }
 
-  Widget _buildHeader() {
-    return Column(
-      children: [
-        Text('AnestCalc',
-          style: TextStyle(
-            fontSize: 32, color: kAccent, fontWeight: FontWeight.w700,
-            letterSpacing: -0.5,
-            fontFamily: GoogleFonts.dmSerifDisplay().fontFamily,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 4),
-        Text('Calculadora de Anestesia Odontológica · Uso Clínico',
-          style: TextStyle(fontSize: 13, color: kTextMuted),
-          textAlign: TextAlign.center,
-        ),
-      ],
+  Widget _entrance(Widget child, Animation<double> anim) {
+    return FadeTransition(
+      opacity: anim,
+      child: SlideTransition(
+        position: Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
+            .animate(anim),
+        child: child,
+      ),
+    );
+  }
+
+  Widget _buildTitle() {
+    return Text('AnestCalc',
+      style: TextStyle(
+        fontSize: 32, color: kAccent, fontWeight: FontWeight.w700,
+        letterSpacing: -0.5,
+        fontFamily: GoogleFonts.dmSerifDisplay().fontFamily,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget _buildSubtitle() {
+    return Text('Calculadora de Anestesia Odontológica · Uso Clínico',
+      style: const TextStyle(fontSize: 13, color: kTextMuted),
+      textAlign: TextAlign.center,
     );
   }
 
@@ -365,17 +448,6 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
         ],
       ],
     );
-  }
-
-  Widget _buildCurrentStep() {
-    switch (_step) {
-      case 1: return _buildStep1();
-      case 2: return _buildStep2();
-      case 3: return _buildStep3();
-      case 4: return _buildStep4();
-      case 5: return _buildStep5();
-      default: return const SizedBox();
-    }
   }
 
   // ── STEP 1: PERFIL ──────────────────────────────────────────────
@@ -436,6 +508,7 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
 
   // ── STEP 2: ANESTÉSICO ──────────────────────────────────────────
   Widget _buildStep2() {
+    if (_perfil == null) return const SizedBox();
     return _Card(
       title: 'Anestésico',
       subtitle: 'Apenas os indicados para o perfil selecionado estão ativos',
@@ -471,6 +544,7 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
 
   // ── STEP 3: VASOCONSTRITOR ──────────────────────────────────────
   Widget _buildStep3() {
+    if (_anestesico == null) return const SizedBox();
     final vasos = _anestesico!.vasoconstritores;
     return _Card(
       title: 'Vasoconstritor',
@@ -561,6 +635,7 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
 
   // ── STEP 5: RESULTADO ───────────────────────────────────────────
   Widget _buildStep5() {
+    if (_result == null) return const SizedBox();
     final r = _result!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -603,12 +678,19 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
                   children: [
                     FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: Text('${r.tubetesArredondado}',
-                        style: TextStyle(
-                          fontSize: 80, color: Colors.white,
-                          fontWeight: FontWeight.w700, height: 1,
-                          fontFamily: GoogleFonts.dmSerifDisplay().fontFamily,
-                        ),
+                      child: TweenAnimationBuilder<int>(
+                        tween: IntTween(begin: 0, end: r.tubetesArredondado),
+                        duration: const Duration(milliseconds: 700),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, value, _) {
+                          return Text('$value',
+                            style: TextStyle(
+                              fontSize: 80, color: Colors.white,
+                              fontWeight: FontWeight.w700, height: 1,
+                              fontFamily: GoogleFonts.dmSerifDisplay().fontFamily,
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -636,7 +718,10 @@ class _AnestCalcPageState extends State<AnestCalcPage> {
                       '${r.doseMaxAbs.toStringAsFixed(0)} mg (${r.tubetesAbsoluto.toStringAsFixed(1)} tubetes)'),
                     _resultRow('Limite do perfil', r.limitePerfilLabel, last: true),
                     const SizedBox(height: 8),
-                    ...r.alerts.map((a) => _AlertWidget(alert: a)),
+                    ...r.alerts.asMap().entries.map((e) => _AlertWidget(
+                      alert: e.value,
+                      delay: Duration(milliseconds: 200 + 130 * e.key),
+                    )),
                   ],
                 ),
               ),
@@ -938,14 +1023,42 @@ class _StepLine extends StatelessWidget {
   }
 }
 
-class _AlertWidget extends StatelessWidget {
+class _AlertWidget extends StatefulWidget {
   final AlertData alert;
-  const _AlertWidget({required this.alert});
+  final Duration delay;
+  const _AlertWidget({required this.alert, this.delay = Duration.zero});
+
+  @override
+  State<_AlertWidget> createState() => _AlertWidgetState();
+}
+
+class _AlertWidgetState extends State<_AlertWidget> with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _fade;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+    _slide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
+    Future.delayed(widget.delay, () {
+      if (mounted) _ctrl.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     Color bg, fg, border;
-    switch (alert.type) {
+    switch (widget.alert.type) {
       case 'warn':
         bg = kWarnLight; fg = kWarn; border = kWarnBorder;
       case 'danger':
@@ -953,23 +1066,30 @@ class _AlertWidget extends StatelessWidget {
       default:
         bg = kOkLight; fg = kOk; border = kOkBorder;
     }
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: bg, borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: border),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(alert.icon, style: const TextStyle(fontSize: 16)),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(alert.msg, style: TextStyle(fontSize: 13, color: fg, height: 1.5)),
+    return FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(
+        position: _slide,
+        child: Container(
+          margin: const EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: bg, borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: border),
           ),
-        ],
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(widget.alert.icon, style: const TextStyle(fontSize: 16)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(widget.alert.msg, style: TextStyle(fontSize: 13, color: fg, height: 1.5)),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
+
