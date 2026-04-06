@@ -464,10 +464,10 @@ class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateM
   Widget _buildStep1() {
     final options = [
       ('saudavel', Icons.person, 'Saudável', 'Sem condições sistêmicas relevantes'),
-      ('gestante', Icons.pregnant_woman, 'Condição materna', 'Gestante ou lactante'),
+      ('gestante', Icons.pregnant_woman, 'Condição Materna', 'Gestante ou lactante'),
       ('cardiopata', Icons.favorite, 'Cardiopata', 'Doença cardiovascular (Classificação ASA)'),
       ('hipertenso', Icons.monitor_heart, 'Hipertenso', 'Pressão arterial elevada'),
-      ('diabetico', Icons.water_drop, 'Diabético', 'Diabetes Tipo 1 ou 2'),
+      ('diabetico', Icons.water_drop, 'Diabético', 'Diabetes tipo I ou II'),
       ('crianca', Icons.child_care, 'Criança', 'Paciente pediátrico'),
     ];
 
