@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const AnestCalcApp());
@@ -146,7 +145,7 @@ class AnestCalcApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: kAccent),
-        fontFamily: GoogleFonts.dmSans().fontFamily,
+        fontFamily: 'DM Sans',
         scaffoldBackgroundColor: kBg,
       ),
       home: const AnestCalcPage(),
@@ -426,7 +425,7 @@ class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateM
       style: TextStyle(
         fontSize: 32, color: kAccent, fontWeight: FontWeight.w700,
         letterSpacing: -0.5,
-        fontFamily: GoogleFonts.dmSerifDisplay().fontFamily,
+        fontFamily: 'DM Serif Display',
       ),
       textAlign: TextAlign.center,
     );
@@ -593,7 +592,7 @@ class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateM
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 32, fontWeight: FontWeight.w500,
-                    fontFamily: GoogleFonts.dmMono().fontFamily, color: kText,
+                    fontFamily: 'DM Mono', color: kText,
                   ),
                   decoration: InputDecoration(
                     hintText: '70',
@@ -687,7 +686,7 @@ class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateM
                             style: TextStyle(
                               fontSize: 80, color: Colors.white,
                               fontWeight: FontWeight.w700, height: 1,
-                              fontFamily: GoogleFonts.dmSerifDisplay().fontFamily,
+                              fontFamily: 'DM Serif Display',
                             ),
                           );
                         },
@@ -764,7 +763,7 @@ class _AnestCalcPageState extends State<AnestCalcPage> with TickerProviderStateM
             child: Text(val,
               style: TextStyle(
                 fontSize: 14, fontWeight: FontWeight.w600,
-                fontFamily: GoogleFonts.dmMono().fontFamily, color: kText,
+                fontFamily: 'DM Mono', color: kText,
               ),
               textAlign: TextAlign.end,
             ),
@@ -795,7 +794,7 @@ class _Card extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 20, color: kAccent, fontWeight: FontWeight.w700, fontFamily: GoogleFonts.dmSerifDisplay().fontFamily)),
+          Text(title, style: TextStyle(fontSize: 20, color: kAccent, fontWeight: FontWeight.w700, fontFamily: 'DM Serif Display')),
           const SizedBox(height: 4),
           Text(subtitle, style: const TextStyle(fontSize: 13, color: kTextMuted)),
           const SizedBox(height: 20),
@@ -914,7 +913,7 @@ class _AnestButton extends StatelessWidget {
                       border: Border.all(color: kBorder),
                     ),
                     child: Text(badge!, style: TextStyle(
-                      fontSize: 11, color: kTextMuted, fontFamily: GoogleFonts.dmMono().fontFamily,
+                      fontSize: 11, color: kTextMuted, fontFamily: 'DM Mono',
                     )),
                   ),
                 ),
@@ -999,7 +998,7 @@ class _StepDot extends StatelessWidget {
       child: Text(
         '$number',
         style: TextStyle(
-          fontSize: 11, fontWeight: FontWeight.w600, fontFamily: GoogleFonts.dmMono().fontFamily,
+          fontSize: 11, fontWeight: FontWeight.w600, fontFamily: 'DM Mono',
           color: isActive ? Colors.white : isDone ? kOk : kTextMuted,
         ),
       ),
