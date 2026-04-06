@@ -49,7 +49,7 @@ Certifique-se de ter o Flutter instalado e configurado em seu ambiente de desenv
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/seu-usuario/anest-calc.git
+   git clone https://github.com/gustavoareis/anest-calc.git
    cd anest-calc
    ```
 
